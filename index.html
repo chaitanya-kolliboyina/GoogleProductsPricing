@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Omniverse Dashboard</title>
+    <style>
+        :root {
+            --g-blue: #4285f4;
+            --g-red: #ea4335;
+            --g-yellow: #fbbc05;
+            --g-green: #34a853;
+            
+            --bg-base: #0b0d10;
+            --bg-gradient: radial-gradient(circle at 50% 0%, #161b26 0%, #0b0d10 70%);
+            --glass-card: rgba(22, 26, 34, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-border-focus: rgba(66, 133, 244, 0.45);
+            
+            --text-main: #f1f3f4;
+            --text-muted: #9aa0a6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 3rem 1.5rem;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1350px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .logo {
+            font-size: 3.2rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            margin-bottom: 0.5rem;
+            filter: drop-shadow(0 2px 10px rgba(0,0,0,0.5));
+        }
+        .logo span:nth-child(1) { color: var(--g-blue); }
+        .logo span:nth-child(2) { color: var(--g-red); }
+        .logo span:nth-child(3) { color: var(--g-yellow); }
+        .logo span:nth-child(4) { color: var(--g-blue); }
+        .logo span:nth-child(5) { color: var(--g-green); }
+        .logo span:nth-child(6) { color: var(--g-red); }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .metrics-pill {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            padding: 0.35rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--g-blue);
+        }
+
+        .controls {
+            background: var(--glass-card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            padding: 1.25rem;
+            border-radius: 16px;
+            margin-bottom: 2.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+        }
+
+        @media (min-width: 850px) {
+            .controls {
+                flex-direction: row;
+                align-items: center;
+            }
+        }
+
+        .search-wrapper {
+            position: relative;
+            flex: 1;
+        }
+
+        .search-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--glass-border);
+            padding: 0.85rem 1rem 0.85rem 2.8rem;
+            border-radius: 10px;
+            font-size: 1rem;
+            color: var(--text-main);
+            outline: none;
+            transition: all 0.25s ease;
+        }
+
+        .search-input:focus {
+            border-color: var(--glass-border-focus);
+            background: rgba(0, 0, 0, 0.45);
+            box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.15);
+        }
+
+        .search-wrapper::before {
+            content: "🔍";
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1rem;
+            opacity: 0.6;
+        }
+
+        .filter-wrapper {
+            display: flex;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--glass-border);
+            padding: 0.6rem 1.1rem;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-muted);
+            transition: all 0.2s ease;
+        }
+
+        .filter-btn:hover {
+            background: rgba(255, 255, 255, 0.09);
+            color: var(--text-main);
+        }
+
+        .filter-btn.active {
+            background: var(--g-blue);
+            color: #ffffff;
+            border-color: var(--g-blue);
+            box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3);
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: var(--glass-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 14px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.2);
+            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 255, 255, 0.18);
+            box-shadow: 0 12px 30px 0 rgba(0, 0, 0, 0.5);
+        }
+
+        .card-header {
+            margin-bottom: 1.25rem;
+        }
+
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 0.5rem;
+            margin-bottom: 0.6rem;
+        }
+
+        .product-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-main);
+            letter-spacing: -0.3px;
+        }
+
+        .badge {
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 0.25rem 0.5rem;
+            border-radius: 5px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .badge.consumer { background: rgba(66, 133, 244, 0.15); color: #8ab4f8; border: 1px solid rgba(66,133,244,0.2); }
+        .badge.developer { background: rgba(251, 188, 5, 0.12); color: #fde293; border: 1px solid rgba(251,188,5,0.2); }
+        .badge.enterprise { background: rgba(52, 168, 83, 0.15); color: #81c995; border: 1px solid rgba(52,168,83,0.2); }
+
+        .product-desc {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            line-height: 1.45;
+            min-height: 3.8rem;
+        }
+
+        .card-details {
+            border-top: 1px dashed rgba(255, 255, 255, 0.08);
+            padding-top: 1rem;
+            margin-top: auto;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.82rem;
+            margin-bottom: 0.5rem;
+            gap: 1rem;
+        }
+
+        .detail-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .detail-label {
+            color: var(--text-muted);
+        }
+
+        .detail-val {
+            color: var(--text-main);
+            font-weight: 500;
+            text-align: right;
+        }
+
+        .no-results {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            background: var(--glass-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 14px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div class="logo">
+            <span>G</span><span>o</span><span>o</span><span>g</span><span>l</span><span>e</span>
+        </div>
+        <p class="subtitle">Ecosystem Product Index & Development Registry</p>
+        <span class="metrics-pill" id="counterDisplay">Loading Registry Matrix...</span>
+    </header>
+
+    <div class="controls">
+        <div class="search-wrapper">
+            <input type="text" id="searchBar" class="search-input" placeholder="Search parameters, pipelines, consumer apps...">
+        </div>
+        <div class="filter-wrapper" id="filterContainer">
+            <button class="filter-btn active" data-type="all">All Modules</button>
+            <button class="filter-btn" data-type="consumer">Consumer Apps</button>
+            <button class="filter-btn" data-type="developer">Dev/SDK/Infrastructure</button>
+            <button class="filter-btn" data-type="enterprise">Enterprise/Analytics</button>
+        </div>
+    </div>
+
+    <main class="product-grid" id="productGrid">
+        </main>
+</div>
+
+<script>
+    // Exhaustive Core Matrix of everything Google provides
+    const googleProducts = [
+        /* === CONSUMER PLATFORMS === */
+        { name: "Google Search", type: "consumer", desc: "The core web layout categorization search infrastructure processing web configurations.", pricing: "Free / Ads Monetized", plan: "Global Web Core" },
+        { name: "Gmail", type: "consumer", desc: "Web-based high-speed web mail communication pipeline tool with built-in machine classification.", pricing: "Free / Tiered Storage Upgrades", plan: "Workspace Native" },
+        { name: "Google Maps", type: "consumer", desc: "Geospatial vector maps, satellite rendering matrices, and real-time navigation pipelines.", pricing: "Free Consumer Scale", plan: "Mobile/Web App" },
+        { name: "YouTube", type: "consumer", desc: "Global decentralized digital media streaming, sharing, and indexing infrastructure engine.", pricing: "Free / Premium Subscription", plan: "Media Streaming Framework" },
+        { name: "Google Drive", type: "consumer", desc: "Cloud file caching systems with deep multi-user sync architectures and asset pipelines.", pricing: "Free 15GB / Paid Google One", plan: "Cloud Storage Native" },
+        { name: "Google Photos", type: "consumer", desc: "Media backup asset host vault with intelligent recognition clustering models.", pricing: "Shared Google One Pool", plan: "Asset Cache Vault" },
+        { name: "Gemini App", type: "consumer", desc: "Direct consumer modal dialogue assistant interface execution engine.", pricing: "Free Tier / Premium Advanced", plan: "Reasoning Overlay Assistant" },
+        { name: "Google Chrome", type: "consumer", desc: "Fast sandboxed multi-process tab web runtime environment utilizing the V8 compiling platform.", pricing: "Free / Open-Source Core", plan: "Browser Infrastructure" },
+        { name: "Google Calendar", type: "consumer", desc: "Time coordination framework supporting scheduling matrices and cross-tenant invites.", pricing: "Free / Integrated Workspace", plan: "Time Coordination Suite" },
+        { name: "Google Earth", type: "consumer", desc: "High-density planetary 3D spatial mapping layout running complex GIS database streaming.", pricing: "Free / Open Pro Assets", plan: "Geospatial 3D Canvas" },
+        { name: "Google Translate", type: "consumer", desc: "Neural machine translation service deploying on-device and cloud sequence-to-sequence loops.", pricing: "Free / API Metered", plan: "Localization Layer" },
+        { name: "Google News", type: "consumer", desc: "Automated information aggregator clustering globally distributed reporting nodes real-time.", pricing: "Free Aggregation", plan: "Media Aggregator" },
+        { name: "Google Shopping", type: "consumer", desc: "E-commerce indexing engine structuring retail merchant feeds into a unified comparison web view.", pricing: "Free Consumer Search", plan: "Merchant Feed Pipeline" },
+        { name: "Google Flights", type: "consumer", desc: "High-velocity airline telemetry search matrix calculating instant pricing routing variations.", pricing: "Free Metadata Aggregator", plan: "Transit Routing Engine" },
+        { name: "Google Keep", type: "consumer", desc: "Lightweight distributed text block caching system for fast note state management.", pricing: "Free Core Integration", plan: "State Cache Tool" },
+        { name: "Google Meet", type: "consumer", desc: "WebRTC powered low-latency real-time matrix multi-peer video conferencing framework.", pricing: "Free / Workspace Tiered", plan: "WebRTC Communication Hub" },
+        { name: "Google Chat", type: "consumer", desc: "Synchronous multi-tenant workspace text layer focusing on programmatic space automation hooks.", pricing: "Free / Workspace Bundled", plan: "Messaging Application" },
+        { name: "Google Finance", type: "consumer", desc: "Real-time stock ticker asset indexing telemetry showing equity chart data curves.", pricing: "Free Market Data", plan: "Financial Telemetry Hub" },
+
+        /* === DEVELOPER, INFRASTRUCTURE, SDKs === */
+        { name: "Android SDK", type: "developer", desc: "Core toolchains, compilers, and hardware abstraction layout wrappers targetting Android OS.", pricing: "Free Open Source (Apache 2.0)", plan: "System Compile Toolchain" },
+        { name: "Android XR", type: "developer", desc: "Spatial OS environment layer compiling graphics pipelines for low-latency mixed reality devices.", pricing: "Partner OS Distribution Matrix", plan: "Spatial Computing Core" },
+        { name: "Flutter", type: "developer", desc: "UI toolkit compiling declarative layouts to assembly formats across Web, Mobile, and Desktop targets.", pricing: "Free Open Source Project", plan: "Cross-Platform Engine" },
+        { name: "Google Cloud Run", type: "developer", desc: "Serverless container execution footprint adjusting stateless container clusters dynamically.", pricing: "Compute Per Millisecond Billing", plan: "Serverless Container Node" },
+        { name: "Firebase Suite", type: "developer", desc: "Unified app infrastructure backend deploying NoSQL Firestore engines and event triggers.", pricing: "Spark Free / Blaze Usage Plan", plan: "Application Backend Stack" },
+        { name: "Gemini Omni APIs", type: "developer", desc: "Developer model inference endpoint rendering token patterns for text, audio, and visual nodes.", pricing: "Metered Rate per Million Tokens", plan: "Model Inference Endpoint" },
+        { name: "Google Maps Platform", type: "developer", desc: "Geocoding API matrix endpoints feeding vector maps and routing functions into external targets.", pricing: "Metered Pay-As-You-Go ($ Per 1K Calls)", plan: "Geospatial Rest API" },
+        { name: "Vertex AI Platform", type: "developer", desc: "End-to-end Machine Learning operations pipeline for dataset tagging, scaling, and endpoint registry.", pricing: "Node Hosting Hourly Billing", plan: "MLOps Production Layer" },
+        { name: "Dart Language", type: "developer", desc: "Client-optimized sound-typed programming language compiled to native machine instruction paths.", pricing: "Free Open Source Matrix", plan: "Compiler Language Model" },
+        { name: "Go Language", type: "developer", desc: "Statically typed concurrent programming language deploying super-fast runtime garbage collection threads.", pricing: "Free Open Source Matrix", plan: "Systems Language Core" },
+        { name: "Bazel Build System", type: "developer", desc: "Fast build orchestration tool validating build graphs tracking micro-artifact changes.", pricing: "Free / Open Source Core", plan: "Build Graph Engine" },
+        { name: "Google Search Console", type: "developer", desc: "Web search visibility diagnostics panel tracking organic indexing performance states.", pricing: "Free Developer Console", plan: "Webmaster Analytics Interface" },
+        { name: "Google Fonts", type: "developer", desc: "Global content distribution network providing optimized typographic asset components to applications.", pricing: "Free Open License Catalog", plan: "Asset CDN Pipeline" },
+        { name: "Google Play Store Console", type: "developer", desc: "Application deployment infrastructure distribution pipeline management desk.", pricing: "$25 One-Time Registration Fee", plan: "Binary Distribution Panel" },
+        { name: "Google Web Toolkit (GWT)", type: "developer", desc: "Development framework translating Java application source structures directly into Javascript.", pricing: "Free Open Source Framework", plan: "Transpiler Platform" },
+        { name: "Compute Engine (GCE)", type: "developer", desc: "Configurable virtual machine instances running inside hypervisor virtualization matrices.", pricing: "Metered Machine Unit/Hour Scales", plan: "Infrastructure VM Compute" },
+        { name: "Kubernetes Engine (GKE)", type: "developer", desc: "Managed container orchestration framework executing automated microservices cluster management.", pricing: "Cluster Node Infrastructure Costs", plan: "Managed Orchestration Framework" },
+        { name: "Cloud Functions", type: "developer", desc: "Event-driven serverless computing code block executors processing lightweight code snips directly.", pricing: "Invocation Volumes Meter Matrix", plan: "FaaS Serverless Computing" },
+
+        /* === ENTERPRISE, ANALYTICS, BUSINESS === */
+        { name: "BigQuery", type: "enterprise", desc: "Serverless data warehouse running query columns over petabyte datasets asynchronously.", pricing: "Metered Volumes per Terabyte Scanned", plan: "Columnar Analytics Engine" },
+        { name: "Google Workspace", type: "enterprise", desc: "Custom domain secure software-as-a-service configuration grouping collaborative workspace items.", pricing: "Starts $6 / User / Month Scale", plan: "SaaS Business Collaboration" },
+        { name: "Google Analytics 360", type: "enterprise", desc: "Corporate analytics tracker monitoring web engagement funnels and attribution graphs.", pricing: "Invoiced Contract Agreements", plan: "Enterprise Analytics Portal" },
+        { name: "Google Ads", type: "enterprise", desc: "B2B intent target placement auction dashboard routing contextual sponsored links to search feeds.", pricing: "Auction-Driven Pay-Per-Click", plan: "Ad Auction Placement Engine" },
+        { name: "Google AdSense", type: "enterprise", desc: "Web publisher distribution node rendering matched display advertisements to site traffic loops.", pricing: "Revenue Split Payout Model", plan: "Publisher Monetization Stack" },
+        { name: "Google Ad Manager", type: "enterprise", desc: "Omnichannel programmatic ad exchange panel mapping buyer inventories across web endpoints.", pricing: "Volume Enterprise Custom Contracts", plan: "Supply-Side Platform Core" },
+        { name: "Google Business Profile", type: "enterprise", desc: "Local organizational map directory control panel verifying brick-and-mortar storefront coordinates.", pricing: "Free Verified Business Listing", plan: "Local Listing Directory" },
+        { name: "Google Marketing Platform", type: "enterprise", desc: "Unified corporate ecosystem combining web campaign management with structured pipeline insight tracking.", pricing: "Tiered Enterprise Framework Agreement", plan: "Unified Campaign Stack" },
+        { name: "Looker", type: "enterprise", desc: "Business intelligence modeling tool utilizing LookML to construct enterprise database dashboard graphs.", pricing: "Enterprise Provisioning Subscription", plan: "BI Visualization Infrastructure" },
+        { name: "Apigee", type: "enterprise", desc: "Full lifecycle API gateway orchestration portal scaling authentication proxies and throttling states.", pricing: "Tiered Scale Contract Matrices", plan: "Enterprise API Gateway Proxy" },
+        { name: "Cloud Spanner", type: "enterprise", desc: "Relational database framework featuring global synchronous replication and ACID execution validation.", pricing: "Metered Storage + Compute Allocations", plan: "Globally Distributed Relational DB" },
+        { name: "Google Classroom", type: "enterprise", desc: "Academic workflow assignment dashboard managing class tracking, file distributions, and evaluation records.", pricing: "Free Core / Workspace for Education", plan: "LMS Educational Platform" },
+        { name: "NotebookLM", type: "enterprise", desc: "Contextual document processing environment synthesizing uploaded source books using grounded generative models.", pricing: "Beta Stage Evaluation Access", plan: "Grounded Knowledge Synthesis Engine" },
+        { name: "Gemini Spark Infrastructure", type: "enterprise", desc: "Continuous multi-agent server automation routines handling data reconciliation across secure internal clouds.", pricing: "Corporate SLA Resource Provision Contract", plan: "Autonomous Cloud Agent Network" }
+    ];
+
+    let currentFilter = 'all';
+    let currentSearchQuery = '';
+
+    function initPage() {
+        const searchBar = document.getElementById('searchBar');
+        const filterContainer = document.getElementById('filterContainer');
+
+        renderCards();
+
+        searchBar.addEventListener('input', (e) => {
+            currentSearchQuery = e.target.value.toLowerCase().trim();
+            renderCards();
+        });
+
+        filterContainer.addEventListener('click', (e) => {
+            if (!e.target.classList.contains('filter-btn')) return;
+            
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            e.target.classList.add('active');
+            
+            currentFilter = e.target.getAttribute('data-type');
+            renderCards();
+        });
+    }
+
+    function renderCards() {
+        const productGrid = document.getElementById('productGrid');
+        const counterDisplay = document.getElementById('counterDisplay');
+        productGrid.innerHTML = '';
+
+        const filtered = googleProducts.filter(product => {
+            const matchesFilter = (currentFilter === 'all' || product.type === currentFilter);
+            const matchesSearch = product.name.toLowerCase().includes(currentSearchQuery) || 
+                                  product.desc.toLowerCase().includes(currentSearchQuery) ||
+                                  product.plan.toLowerCase().includes(currentSearchQuery);
+            return matchesFilter && matchesSearch;
+        });
+
+        // Update Counter Display dynamically
+        counterDisplay.textContent = `Displaying ${filtered.length} of ${googleProducts.length} Ecosystem Elements`;
+
+        if (filtered.length === 0) {
+            productGrid.innerHTML = `<div class="no-results">No registry components match your current query configuration.</div>`;
+            return;
+        }
+
+        const fragment = document.createDocumentFragment();
+
+        filtered.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            
+            let targetLabel = 'Consumer App';
+            if(item.type === 'developer') targetLabel = 'Dev / Infra';
+            if(item.type === 'enterprise') targetLabel = 'Enterprise / BI';
+
+            card.innerHTML = `
+                <div class="card-header">
+                    <div class="card-top">
+                        <h3 class="product-name">${item.name}</h3>
+                        <span class="badge ${item.type}">${targetLabel}</span>
+                    </div>
+                    <p class="product-desc">${item.desc}</p>
+                </div>
+                <div class="card-details">
+                    <div class="detail-row">
+                        <span class="detail-label">Model Topology:</span>
+                        <span class="detail-val">${item.pricing}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Target Architecture:</span>
+                        <span class="detail-val">${item.plan}</span>
+                    </div>
+                </div>
+            `;
+            fragment.appendChild(card);
+        });
+
+        productGrid.appendChild(fragment);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initPage);
+    } else {
+        initPage();
+    }
+</script>
+</body>
+</html>
